@@ -1,41 +1,85 @@
 #!/usr/bin/env node
 'use strict';
 
+const path = require('path');
 const format = require('../lib/format');
 
 function printUsage() {
-  console.log('zarcotime - tiny relative time formatter\n');
-  console.log('Usage: zarcotime <timestamp|date-string|now>');
+  console.log('zarcotime - tiny relative time formatter');
+  console.log('');
+  console.log('Usage: zarcotime [options] <timestamp|date-string|now>');
+  console.log('');
+  console.log('Options:');
+  console.log('  --locale <locale>        Locale code (e.g., en, fr)');
+  console.log('  --style <long|short>     Output style (default: long)');
+  console.log("  --numeric <auto|always>  Use 'auto' for yesterday/tomorrow (default: always)");
+  console.log('  --now <ts|date>          Override current time for calculation');
+  console.log('  -h, --help               Show this help');
+  console.log('');
   console.log('Examples:');
-  console.log('  zarcotime 1620000000000');
-  console.log('  zarcotime 1620000000');
-  console.log('  zarcotime "2021-05-03T12:00:00Z"');
   console.log('  zarcotime now');
+  console.log('  zarcotime 1620000000 --style short');
+  console.log('  zarcotime "2025-08-27T12:00:00Z" --locale fr');
+}
+
+function parseArgs(argv) {
+  const out = {
+    flags: {},
+    positional: []
+  };
+
+  let i = 0;
+  while (i < argv.length) {
+    const a = argv[i];
+    if (a === '-h' || a === '--help') {
+      out.flags.help = true;
+      i++;
+      continue;
+    }
+    if (a.startsWith('--')) {
+      const k = a.slice(2);
+      if (k === 'locale' || k === 'style' || k === 'numeric' || k === 'now') {
+        const v = argv[i + 1];
+        if (!v || v.startsWith('--')) {
+          // missing value
+          out.flags[k] = true;
+          i++;
+        } else {
+          out.flags[k] = v;
+          i += 2;
+        }
+        continue;
+      } else {
+        // boolean flag
+        out.flags[k] = true;
+        i++;
+        continue;
+      }
+    }
+    // positional
+    out.positional.push(a);
+    i++;
+  }
+  return out;
 }
 
 const args = process.argv.slice(2);
+const parsed = parseArgs(args);
 
-if (args.length === 0) {
+if (parsed.flags.help || parsed.positional.length === 0) {
   printUsage();
-  process.exitCode = 1;
-  return;
+  process.exit(parsed.flags.help ? 0 : 1);
 }
 
-let input = args.join(' ').trim();
-
-if (input.toLowerCase() === 'help') {
-  printUsage();
-  process.exitCode = 0;
-  return;
-}
-
-// Handle "now" input
-if (input.toLowerCase() === 'now') {
-  input = Date.now();
-}
+const input = parsed.positional.join(' ');
+const opts = {};
+if (parsed.flags.locale) opts.locale = parsed.flags.locale;
+if (parsed.flags.style) opts.style = parsed.flags.style;
+if (parsed.flags.numeric) opts.numeric = parsed.flags.numeric;
+if (parsed.flags.now) opts.now = parsed.flags.now;
 
 try {
-  const out = format(input);
+  const out = format(input, opts);
   console.log(out);
 } catch (err) {
   console.error('Error:', err.message);

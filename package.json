@@ -1,23 +1,50 @@
 {
   "name": "zarcotime",
-  "version": "1.0.0",
-  "description": "Tiny utility to format timestamps into human readable relative times (e.g. \"2 minutes ago\", \"in 3 days\").",
+  "version": "1.0.1",
+  "description": "A tiny Node.js utility to convert timestamps into human-readable relative times.",
   "main": "index.js",
+  "module": "esm/index.js",
+  "types": "types/index.d.ts",
   "bin": {
     "zarcotime": "./bin/zarcotime"
   },
+  "files": [
+    "lib/",
+    "esm/",
+    "bin/",
+    "types/",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "test": "node test/test.js",
-    "lint": "echo \"No linter configured\"",
     "prepublishOnly": "node -e \"console.log('Ready to publish zarcotime')\""
   },
   "keywords": [
     "time",
     "relative-time",
+    "humanize",
     "pretty",
     "timestamp",
-    "zarcotime"
+    "zarcotime",
+    "humanize-time"
   ],
   "author": "ZarCodeX",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZarCodeX/zarcotime.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ZarCodeX/zarcotime/issues"
+  },
+  "homepage": "https://github.com/ZarCodeX/zarcotime#readme"
 }

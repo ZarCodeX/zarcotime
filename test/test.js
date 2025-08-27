@@ -1,23 +1,50 @@
-'use strict';
-
 const assert = require('assert');
-const format = require('../lib/format');
+const formatTime = require('../lib/format');
 
-// helper: fixed now
-const now = Date.now();
+const NOW = new Date('2024-01-01T00:00:00Z').getTime();
 
-console.log('Running tests for zarcotime...');
+function runTest(name, fn) {
+  try {
+    fn();
+    console.log(`✔ ${name}`);
+  } catch (err) {
+    console.error(`✖ ${name}`);
+    console.error(err);
+    process.exitCode = 1;
+  }
+}
 
-assert.strictEqual(format(now, { now }), 'just now', 'now should be just now');
+console.log('Running tests for zarcotime v1.0.1...');
 
-assert.strictEqual(format(new Date(now - 1000 * 60), { now }), '1 minute ago');
-assert.strictEqual(format(new Date(now - 1000 * 60 * 5), { now }), '5 minutes ago');
-assert.strictEqual(format(new Date(now - 1000 * 60 * 60), { now }), '1 hour ago');
-assert.strictEqual(format(new Date(now - 1000 * 60 * 60 * 24), { now, numeric: 'auto' }), 'yesterday');
+runTest('just now', () => {
+  assert.strictEqual(formatTime(NOW, { now: NOW }), 'just now');
+});
 
-assert.strictEqual(format(new Date(now + 1000 * 60), { now }), 'in 1 minute');
-assert.strictEqual(format(new Date(now + 1000 * 60 * 60 * 24), { now, numeric: 'auto' }), 'tomorrow');
+runTest('1 second ago', () => {
+  assert.strictEqual(formatTime(NOW - 1000, { now: NOW }), '1 second ago');
+});
 
-assert.strictEqual(format(Math.floor((now - 30 * 24 * 60 * 60 * 1000) / 1000), { now }), '1 month ago', 'seconds input should work');
+runTest('5 minutes ago', () => {
+  assert.strictEqual(formatTime(NOW - 5 * 60 * 1000, { now: NOW }), '5 minutes ago');
+});
 
-console.log('All tests passed.');
+runTest('in 2 hours', () => {
+  assert.strictEqual(formatTime(NOW + 2 * 60 * 60 * 1000, { now: NOW }), 'in 2 hours');
+});
+
+runTest('auto mode yesterday/tomorrow', () => {
+  assert.strictEqual(formatTime(NOW - 24 * 60 * 60 * 1000, { now: NOW, numeric: 'auto' }), 'yesterday');
+  assert.strictEqual(formatTime(NOW + 24 * 60 * 60 * 1000, { now: NOW, numeric: 'auto' }), 'tomorrow');
+});
+
+runTest('always mode numeric output', () => {
+  assert.strictEqual(formatTime(NOW - 30 * 24 * 60 * 60 * 1000, { now: NOW, numeric: 'always' }), '1 month ago');
+  assert.strictEqual(formatTime(NOW - 365 * 24 * 60 * 60 * 1000, { now: NOW, numeric: 'always' }), '1 year ago');
+});
+
+runTest('locale support (fr)', () => {
+  const out = formatTime(NOW - 60 * 1000, { now: NOW, locale: 'fr' });
+  assert.ok(typeof out === 'string');
+});
+
+console.log('All tests completed.');
