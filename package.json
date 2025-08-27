@@ -1,0 +1,23 @@
+{
+  "name": "zarcotime",
+  "version": "1.0.0",
+  "description": "Tiny utility to format timestamps into human readable relative times (e.g. \"2 minutes ago\", \"in 3 days\").",
+  "main": "index.js",
+  "bin": {
+    "zarcotime": "./bin/zarcotime"
+  },
+  "scripts": {
+    "test": "node test/test.js",
+    "lint": "echo \"No linter configured\"",
+    "prepublishOnly": "node -e \"console.log('Ready to publish zarcotime')\""
+  },
+  "keywords": [
+    "time",
+    "relative-time",
+    "pretty",
+    "timestamp",
+    "zarcotime"
+  ],
+  "author": "ZarCodeX",
+  "license": "MIT"
+}

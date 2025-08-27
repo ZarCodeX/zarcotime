@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+'use strict';
+
+const format = require('../lib/format');
+
+function printUsage() {
+  console.log('zarcotime - tiny relative time formatter\n');
+  console.log('Usage: zarcotime <timestamp|date-string|now>');
+  console.log('Examples:');
+  console.log('  zarcotime 1620000000000');
+  console.log('  zarcotime 1620000000');
+  console.log('  zarcotime "2021-05-03T12:00:00Z"');
+  console.log('  zarcotime now');
+}
+
+const args = process.argv.slice(2);
+
+if (args.length === 0) {
+  printUsage();
+  process.exitCode = 1;
+  return;
+}
+
+let input = args.join(' ').trim();
+
+if (input.toLowerCase() === 'help') {
+  printUsage();
+  process.exitCode = 0;
+  return;
+}
+
+// Handle "now" input
+if (input.toLowerCase() === 'now') {
+  input = Date.now();
+}
+
+try {
+  const out = format(input);
+  console.log(out);
+} catch (err) {
+  console.error('Error:', err.message);
+  process.exitCode = 2;
+}
